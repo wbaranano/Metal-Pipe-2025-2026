@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 public class HardwareUpdate extends CommandBase {
     @Override
     public void execute(){
-        Robot.sensorUpdate();
-        Robot.telemetry.addData("hue",Robot.hsvIntake[0]);
+        // Robot.sensorUpdate();
+        // Robot.telemetry.addData("hue",Robot.hsvIntake[0]);
     }
 }

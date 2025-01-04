@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 public class PrepareIntake extends SequentialCommandGroup {
     public static int ticksDistance=-1000;
     public PrepareIntake(IntakeSubsystem intake){
+        /*
         addCommands(
             new InstantCommand(()->intake.setWrist(-.1)),
             new InstantCommand(()->{intake.setIntakeDistance(ticksDistance);}),
@@ -19,5 +20,6 @@ public class PrepareIntake extends SequentialCommandGroup {
             new InstantCommand(()->intake.setIntakeSpeed(1)),
             new InstantCommand(()->intake.setRollerSpeed(.25))
         );
+        */
     }
 }

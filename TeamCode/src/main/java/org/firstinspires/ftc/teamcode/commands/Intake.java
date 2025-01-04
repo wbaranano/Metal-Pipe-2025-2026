@@ -14,6 +14,7 @@ public class Intake extends CommandBase {
     }
     @Override
     public void execute(){
+        /*
         if(IntakeSubsystem.colorDetected== Robot.enemyColor){
             intake.setRollerSpeed(1);
         }
@@ -26,6 +27,7 @@ public class Intake extends CommandBase {
             intake.setRollerSpeed(.5);
             intake.setIntakeSpeed(1.0);
         }
+        */
     }
 
     @Override
