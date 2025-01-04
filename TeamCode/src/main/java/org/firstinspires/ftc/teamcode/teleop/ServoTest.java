@@ -35,18 +35,18 @@ public class ServoTest extends CommandOpMode {
 
     @Override
     public void initialize() {
-        SubsystemHandler sys = new SubsystemHandler(
+        CommandScheduler.getInstance().reset();
+
+        Robot.robotInit(hardwareMap);
+        Robot.registerSubsystems(new SubsystemHandler(
             new LiftSubsystem(),
             new IntakeSubsystem(IntakeSubsystem.COLOR.red),
-            new DriveSubsystem(new MecanumDrive(hardwareMap, Util.pose()))
-        );
-
-        Robot.robotInit(hardwareMap, sys);
+            new DriveSubsystem(gamepad1)
+        ));
 
         addServo("claw", Robot.claw);
-        servos.add(Arrays.asList(
-            new Pair<>("claw pitch", Robot.clawPitch),
-            new Pair<>("claw roll", Robot.clawRoll)));
+        addServo("claw pitch", Robot.clawPitch);
+        addServo("claw roll", Robot.clawRoll);
         servos.add(Arrays.asList(
             new Pair<>("pivot front", Robot.armPivotFront),
             new Pair<>("pivot back", Robot.armPivotBack)));

@@ -47,16 +47,15 @@ public class Robot {
     // ==============================================================
 
 
-    public static void robotInit(HardwareMap hardwareMap, SubsystemHandler subsystems) {
+    public static void robotInit(HardwareMap hardwareMap) {
         Robot.hardwareMap = hardwareMap;
-        sys = subsystems;
 
         telemetry = new MultipleTelemetry();
 
         leftFront = initMotor("lf");
         leftRear = initMotor("lr");
-        rightFront = initMotor("rf");
-        rightRear = initMotor("rr");
+        rightFront = initMotor("rf", DcMotorSimple.Direction.REVERSE);
+        rightRear = initMotor("rr", DcMotorSimple.Direction.REVERSE);
 
         extendo = hardwareMap.get(DcMotorEx.class,"extendo");
         extendo.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -92,6 +91,10 @@ public class Robot {
         claw = hardwareMap.servo.get("claw");
     }
 
+    public static void registerSubsystems(SubsystemHandler sys) {
+        Robot.sys = sys;
+    }
+
     private static DcMotorEx initLiftMotor(String name) {
         DcMotorEx m = hardwareMap.get(DcMotorEx.class, name);
         m.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -101,12 +104,12 @@ public class Robot {
     }
 
     private static DcMotorEx initMotor(String name) {
-        return initMotor(name, DcMotor.ZeroPowerBehavior.BRAKE, DcMotorSimple.Direction.FORWARD);
+        return initMotor(name, DcMotorSimple.Direction.FORWARD);
     }
 
-    private static DcMotorEx initMotor(String name, DcMotor.ZeroPowerBehavior zero, DcMotorSimple.Direction dir) {
+    private static DcMotorEx initMotor(String name, DcMotorSimple.Direction dir) {
         DcMotorEx m = hardwareMap.get(DcMotorEx.class, name);
-        m.setZeroPowerBehavior(zero);
+        m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         m.setDirection(dir);
 
         return m;

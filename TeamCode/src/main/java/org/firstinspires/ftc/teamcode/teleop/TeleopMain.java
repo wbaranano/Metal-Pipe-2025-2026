@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Util;
+import org.firstinspires.ftc.teamcode.commands.Drive;
 import org.firstinspires.ftc.teamcode.commands.intake.intakeCollect;
 import org.firstinspires.ftc.teamcode.commands.intake.intakePlace;
 import org.firstinspires.ftc.teamcode.commands.intake.intakeRun;
@@ -25,16 +26,18 @@ public class TeleopMain extends CommandOpMode {
     public void initialize() {
         CommandScheduler.getInstance().reset();
 
-        SubsystemHandler sys = new SubsystemHandler(
+        Robot.robotInit(hardwareMap);
+        Robot.registerSubsystems(new SubsystemHandler(
             new LiftSubsystem(),
             new IntakeSubsystem(IntakeSubsystem.COLOR.red), // TODO
-            new DriveSubsystem(new MecanumDrive(hardwareMap, Util.pose()))
-        );
+            new DriveSubsystem(gamepad1)
+        ));
 
-        Robot.robotInit(hardwareMap, sys);
+        // initGamepadOne();
+        // initGamepadTwo();
 
-        initGamepadOne();
-        initGamepadTwo();
+        Robot.telemetry.addLine("Ready");
+        Robot.telemetry.update();
 
         waitForStart();
     }
