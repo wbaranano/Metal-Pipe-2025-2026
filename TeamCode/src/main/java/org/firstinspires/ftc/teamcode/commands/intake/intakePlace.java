@@ -17,11 +17,9 @@ public class intakePlace extends SequentialCommandGroup {
 
         addCommands(
             new InstantCommand(() -> {
-                in.setWristPos(IntakeSubsystem.WRIST.intake);
-                in.setIntakeSpeed(1);
-                in.setRollerSpeed(0.25);
+                in.setWristPos(IntakeSubsystem.WRIST.transfer);
+                in.setIntakeDist(IntakeSubsystem.fullIntakeOutTick);
             }),
-            new InstantCommand(() -> in.setIntakeDist(-1000)),
             new WaitUntilCommand(in.pid::done),
             new InstantCommand(() -> {
                 in.setIntakeSpeed(-1);
@@ -29,11 +27,10 @@ public class intakePlace extends SequentialCommandGroup {
             }),
             new WaitUntilCommand(() -> in.colorDetected == IntakeSubsystem.COLOR.blank),
             new InstantCommand(() -> {
-                in.setWristPos(IntakeSubsystem.WRIST.transfer);
                 in.setIntakeSpeed(0);
                 in.setRollerSpeed(0);
+                in.setIntakeDist(IntakeSubsystem.intakeInTick);
             }),
-            new InstantCommand(() -> in.setIntakeDist(0)),
             new WaitUntilCommand(in.pid::done)
         );
     }

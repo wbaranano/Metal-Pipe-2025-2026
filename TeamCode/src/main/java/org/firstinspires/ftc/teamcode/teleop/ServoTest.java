@@ -37,7 +37,7 @@ public class ServoTest extends CommandOpMode {
     public void initialize() {
         CommandScheduler.getInstance().reset();
 
-        Robot.robotInit(hardwareMap);
+        Robot.robotInit(hardwareMap, telemetry);
         Robot.registerSubsystems(new SubsystemHandler(
             new LiftSubsystem(),
             new IntakeSubsystem(IntakeSubsystem.COLOR.red),
@@ -89,6 +89,16 @@ public class ServoTest extends CommandOpMode {
                 s.second.setPosition(Math.max(0, s.second.getPosition() - speed));
             }
         });
+
+        pad.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> {
+            List<Pair<String, Servo>> _s = servos.get(index);
+            for (Pair<String, Servo> s : _s) {
+                s.second.setPosition(0.5);
+            }
+        });
+
+        Robot.telemetry.addLine("Ready");
+        Robot.telemetry.update();
 
         waitForStart();
     }

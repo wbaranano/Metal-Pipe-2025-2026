@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.PID.PIDWrapper;
 @Config
 public class IntakeSubsystem extends SubsystemBase {
     public WRIST wristPos;
-    public COLOR colorDetected;
+    public COLOR colorDetected = COLOR.blank;
     public float[] colorHSV = {0f, 0f, 0f};
     public COLOR teamColor;
     public COLOR enemyColor;
@@ -21,12 +21,20 @@ public class IntakeSubsystem extends SubsystemBase {
     public static double wristDown=0.18;
     public static double wristUp=0.0;
 
+    public static int fullIntakeOutTick = 600;
+    public static int intakeInTick = -20;
+
+    public static double p = 0.06, i = 0, d = 1;
+
     public PIDWrapper pid;
+
+    private COLOR lastColor = COLOR.blank;
+    private int colorBuffer;
 
     public IntakeSubsystem(COLOR teamColor) {
         this.pid = new PIDWrapper(
-            0.01, 0, 0,
-            0.2, 200,
+            p, i, d,
+            0.75, 10,
             Robot.extendo::getCurrentPosition, Robot.extendo::setPower);
 
         this.teamColor = teamColor;
@@ -36,10 +44,21 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic(){
         pid.update();
-        colorDetected = getColor();
+        COLOR c = getColor();
+
+        if (c == lastColor) colorBuffer++;
+        else {
+            colorBuffer = 0;
+            lastColor = c;
+        }
+
+        if (colorBuffer >= 3) colorDetected = c;
+
 
         Robot.telemetry.addData("Intake Color", colorDetected);
         pid.log("Intake");
+
+        pid.setPID(p, i, d);
     }
 
     private COLOR getColor(){

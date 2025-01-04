@@ -26,15 +26,15 @@ public class TeleopMain extends CommandOpMode {
     public void initialize() {
         CommandScheduler.getInstance().reset();
 
-        Robot.robotInit(hardwareMap);
+        Robot.robotInit(hardwareMap, telemetry);
         Robot.registerSubsystems(new SubsystemHandler(
             new LiftSubsystem(),
             new IntakeSubsystem(IntakeSubsystem.COLOR.red), // TODO
             new DriveSubsystem(gamepad1)
         ));
 
-        // initGamepadOne();
-        // initGamepadTwo();
+        initGamepadOne();
+        initGamepadTwo();
 
         Robot.telemetry.addLine("Ready");
         Robot.telemetry.update();
@@ -44,17 +44,20 @@ public class TeleopMain extends CommandOpMode {
 
     private void initGamepadOne() {
         GamepadEx pad1 = new GamepadEx(gamepad1);
+
+        pad1.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenHeld(new InstantCommand(() -> Robot.flipper.setPower(0.25)));
+        pad1.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenHeld(new InstantCommand(() -> Robot.flipper.setPower(1)));
     }
 
     private void initGamepadTwo() {
         GamepadEx pad2 = new GamepadEx(gamepad2);
 
         pad2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-            .whenPressed(() -> Robot.sys.intake.overrideIntakePower(0.25))
+            .whenHeld(new InstantCommand(() -> Robot.sys.intake.overrideIntakePower(0.5)))
             .whenReleased(() -> Robot.sys.intake.overrideIntakePower(0));
 
         pad2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-            .whenPressed(() -> Robot.sys.intake.overrideIntakePower(-0.25))
+            .whenHeld(new InstantCommand(() -> Robot.sys.intake.overrideIntakePower(-0.5)))
             .whenReleased(() -> Robot.sys.intake.overrideIntakePower(0));
 
         // test intake
@@ -74,13 +77,20 @@ public class TeleopMain extends CommandOpMode {
                     })
                 ));
 
+        pad2.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+            new InstantCommand(() -> {
+                Robot.sys.intake.setWristPos(IntakeSubsystem.WRIST.transfer);
+                Robot.sys.intake.setIntakeSpeed(0);
+                Robot.sys.intake.setRollerSpeed(0);
+            }));
+
         // test intake extension
         pad2.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
-            new InstantCommand(() -> Robot.sys.intake.setIntakeDist(-1000))
+            new InstantCommand(() -> Robot.sys.intake.setIntakeDist(600))
         );
 
         pad2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
-            new InstantCommand(() -> Robot.sys.intake.setIntakeDist(0))
+            new InstantCommand(() -> Robot.sys.intake.setIntakeDist(-20))
         );
 
         // pickup specimen

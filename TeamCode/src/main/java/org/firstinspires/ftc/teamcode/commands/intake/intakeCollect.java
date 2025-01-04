@@ -4,6 +4,8 @@ import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -22,7 +24,10 @@ public class intakeCollect extends SequentialCommandGroup {
                 // if specimen is valid or blank, continue as normal. otherwise eject
                 new ConditionalCommand(
                     new InstantCommand(() -> in.setRollerSpeed(0.25)),
-                    new InstantCommand(() -> in.setRollerSpeed(1)),
+                    new SequentialCommandGroup(
+                        new InstantCommand(() -> in.setRollerSpeed(1)),
+                        new WaitCommand(500)
+                    ),
                     () -> this.isValid() || in.colorDetected == IntakeSubsystem.COLOR.blank
                 )
             ).interruptOn(this::isValid)

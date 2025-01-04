@@ -22,6 +22,10 @@ public class PIDWrapper {
         this.read = read;
     }
 
+    public void setPID(double p, double i, double d) {
+        pid.setPID(p, i, d);
+    }
+
     public void setTarget(double target) {
         // TODO: can replace with just pid.setSetPoint?
         pid.reset();
@@ -29,7 +33,7 @@ public class PIDWrapper {
     }
 
     public void update() {
-        power = pid.calculate(target, read.read());
+        power = pid.calculate(target, -read.read());
         power = Math.signum(power) * Math.min(Math.abs(power), max);
 
         write.write(Range.clip(power, -1, 1));
@@ -37,14 +41,15 @@ public class PIDWrapper {
 
     public void log(String name) {
         Robot.telemetry.addLine("=== " + name.toUpperCase() + " PID ===");
-        Robot.telemetry.addData(name + "tick", read.read());
-        Robot.telemetry.addData(name + "target", target);
-        Robot.telemetry.addData(name + "power", power);
-        Robot.telemetry.addData(name + "is done", done());
+        Robot.telemetry.addData(name + " tick", -read.read());
+        Robot.telemetry.addData(name + " target", target);
+        Robot.telemetry.addData(name + " power", power);
+        Robot.telemetry.addData(name + " is done", done());
         Robot.telemetry.addLine();
     }
 
     public boolean done() {
+        if (pid == null) return true;
         return pid.atSetPoint();
     }
 
