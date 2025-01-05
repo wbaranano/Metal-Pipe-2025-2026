@@ -90,12 +90,15 @@ public class ServoTest extends CommandOpMode {
             }
         });
 
-        pad.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> {
+        pad.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {
             List<Pair<String, Servo>> _s = servos.get(index);
             for (Pair<String, Servo> s : _s) {
                 s.second.setPosition(0.5);
             }
         });
+
+        pad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> Robot.sys.lift.pid.increment(20));
+        pad.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> Robot.sys.lift.pid.increment(-20));
 
         Robot.telemetry.addLine("Ready");
         Robot.telemetry.update();

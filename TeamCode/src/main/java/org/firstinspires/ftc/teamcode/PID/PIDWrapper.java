@@ -10,16 +10,19 @@ public class PIDWrapper {
     private final PIDController pid;
     private final PIDRead read;
     private final PIDWrite write;
+    private final int offset;
 
     private double target, power;
 
-    public PIDWrapper(double p, double i, double d, double max, double tolerance, PIDRead read, PIDWrite write) {
+    public PIDWrapper(double p, double i, double d, double max, double tolerance, PIDRead read, PIDWrite write, boolean negative) {
         this.max = max;
         pid = new PIDController(p, i, d);
         pid.setTolerance(tolerance);
 
         this.write = write;
         this.read = read;
+
+        this.offset = negative ? -1 : 1;
     }
 
     public void setPID(double p, double i, double d) {
@@ -33,15 +36,19 @@ public class PIDWrapper {
     }
 
     public void update() {
-        power = pid.calculate(target, -read.read());
+        power = pid.calculate(target, offset * read.read());
         power = Math.signum(power) * Math.min(Math.abs(power), max);
 
         write.write(Range.clip(power, -1, 1));
     }
 
+    public void increment(int amt) {
+        this.setTarget(target + amt);
+    }
+
     public void log(String name) {
         Robot.telemetry.addLine("=== " + name.toUpperCase() + " PID ===");
-        Robot.telemetry.addData(name + " tick", -read.read());
+        Robot.telemetry.addData(name + " tick", offset * read.read());
         Robot.telemetry.addData(name + " target", target);
         Robot.telemetry.addData(name + " power", power);
         Robot.telemetry.addData(name + " is done", done());

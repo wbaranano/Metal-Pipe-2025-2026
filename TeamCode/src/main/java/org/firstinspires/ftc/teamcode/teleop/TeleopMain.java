@@ -14,6 +14,9 @@ import org.firstinspires.ftc.teamcode.commands.Drive;
 import org.firstinspires.ftc.teamcode.commands.intake.intakeCollect;
 import org.firstinspires.ftc.teamcode.commands.intake.intakePlace;
 import org.firstinspires.ftc.teamcode.commands.intake.intakeRun;
+import org.firstinspires.ftc.teamcode.commands.lift.depositSpecimen;
+import org.firstinspires.ftc.teamcode.commands.lift.exitBucketForSpecimen;
+import org.firstinspires.ftc.teamcode.commands.lift.prepareSpecimen;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LiftSubsystem;
@@ -22,6 +25,8 @@ import org.firstinspires.ftc.teamcode.subsystems.SubsystemHandler;
 
 @TeleOp
 public class TeleopMain extends CommandOpMode {
+    private int liftTick = 0;
+
     @Override
     public void initialize() {
         CommandScheduler.getInstance().reset();
@@ -52,52 +57,32 @@ public class TeleopMain extends CommandOpMode {
     private void initGamepadTwo() {
         GamepadEx pad2 = new GamepadEx(gamepad2);
 
-        pad2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-            .whenHeld(new InstantCommand(() -> Robot.sys.intake.overrideIntakePower(0.5)))
-            .whenReleased(() -> Robot.sys.intake.overrideIntakePower(0));
-
-        pad2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-            .whenHeld(new InstantCommand(() -> Robot.sys.intake.overrideIntakePower(-0.5)))
-            .whenReleased(() -> Robot.sys.intake.overrideIntakePower(0));
-
-        // test intake
-        pad2.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-            .whenPressed(
-                new SequentialCommandGroup(
-                    new InstantCommand(() -> {
-                        Robot.sys.intake.setWristPos(IntakeSubsystem.WRIST.intake);
-                        Robot.sys.intake.setIntakeSpeed(1);
-                        Robot.sys.intake.setRollerSpeed(0.25);
-                    }),
-                    new intakeCollect(false),
-                    new InstantCommand(() -> {
-                        Robot.sys.intake.setWristPos(IntakeSubsystem.WRIST.transfer);
-                        Robot.sys.intake.setIntakeSpeed(0);
-                        Robot.sys.intake.setRollerSpeed(0);
-                    })
-                ));
-
-        pad2.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+        // stop intake
+        /*
+        pad2.getGamepadButton(GamepadKeys.Button.X).whenPressed(
             new InstantCommand(() -> {
                 Robot.sys.intake.setWristPos(IntakeSubsystem.WRIST.transfer);
                 Robot.sys.intake.setIntakeSpeed(0);
                 Robot.sys.intake.setRollerSpeed(0);
             }));
-
-        // test intake extension
-        pad2.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
-            new InstantCommand(() -> Robot.sys.intake.setIntakeDist(600))
-        );
-
-        pad2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
-            new InstantCommand(() -> Robot.sys.intake.setIntakeDist(-20))
-        );
+         */
 
         // pickup specimen
-        pad2.getGamepadButton(GamepadKeys.Button.A).whenPressed(new intakeRun(false));
+        // pad2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new intakeRun(false));
 
         // drop specimen
-        pad2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new intakePlace());
+        // pad2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new intakePlace());
+
+        pad2.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() -> Robot.sys.lift.pid.increment(20));
+        pad2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> Robot.sys.lift.pid.increment(-20));
+
+        pad2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new exitBucketForSpecimen());
+        pad2.getGamepadButton(GamepadKeys.Button.X).whenPressed(new prepareSpecimen());
+        pad2.getGamepadButton(GamepadKeys.Button.B).whenPressed(new depositSpecimen());
+
+
+        pad2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(() -> Robot.sys.lift.setClaw(true));
+        pad2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> Robot.sys.lift.setClaw(false));
     }
 
     @Override

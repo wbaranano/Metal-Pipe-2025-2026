@@ -21,8 +21,11 @@ public class IntakeSubsystem extends SubsystemBase {
     public static double wristDown=0.18;
     public static double wristUp=0.0;
 
-    public static int fullIntakeOutTick = 600;
-    public static int intakeInTick = -20;
+    @Config
+    public static class constants {
+        public static int fullIntakeOutTick = 600;
+        public static int intakeInTick = -20;
+    }
 
     public static double p = 0.06, i = 0, d = 1;
 
@@ -35,7 +38,8 @@ public class IntakeSubsystem extends SubsystemBase {
         this.pid = new PIDWrapper(
             p, i, d,
             0.75, 10,
-            Robot.extendo::getCurrentPosition, Robot.extendo::setPower);
+            Robot.extendo::getCurrentPosition, Robot.extendo::setPower,
+            true);
 
         this.teamColor = teamColor;
         enemyColor = teamColor == COLOR.red ? COLOR.blue : COLOR.red;

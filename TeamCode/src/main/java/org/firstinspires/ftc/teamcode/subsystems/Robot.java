@@ -97,6 +97,7 @@ public class Robot {
 
     private static DcMotorEx initLiftMotor(String name) {
         DcMotorEx m = hardwareMap.get(DcMotorEx.class, name);
+        m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         m.setDirection(DcMotorSimple.Direction.FORWARD);
         m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

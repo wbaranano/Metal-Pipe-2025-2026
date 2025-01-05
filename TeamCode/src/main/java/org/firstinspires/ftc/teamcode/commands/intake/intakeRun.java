@@ -19,11 +19,8 @@ public class intakeRun extends SequentialCommandGroup {
         IntakeSubsystem in = Robot.sys.intake;
 
         addCommands(
-            new InstantCommand(() -> {
-                in.setIntakeDist(IntakeSubsystem.fullIntakeOutTick);
-                in.setWristPos(IntakeSubsystem.WRIST.transfer);
-            }),
-            new WaitUntilCommand(in.pid::done),
+            new InstantCommand(() -> in.setWristPos(IntakeSubsystem.WRIST.transfer)),
+            new intakeTo(IntakeSubsystem.constants.fullIntakeOutTick),
             new InstantCommand(() -> {
                 in.setWristPos(IntakeSubsystem.WRIST.intake);
                 in.setIntakeSpeed(1);
@@ -36,8 +33,7 @@ public class intakeRun extends SequentialCommandGroup {
                 in.setRollerSpeed(0);
             }),
             new WaitCommand(250),
-            new InstantCommand(() -> in.setIntakeDist(IntakeSubsystem.intakeInTick)),
-            new WaitUntilCommand(in.pid::done),
+            new intakeTo(IntakeSubsystem.constants.intakeInTick),
             // if we are transferring, put specimen in bucket
             new ConditionalCommand(
                 // transfer
