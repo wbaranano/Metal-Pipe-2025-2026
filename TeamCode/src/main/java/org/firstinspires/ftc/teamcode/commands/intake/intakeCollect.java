@@ -34,9 +34,13 @@ public class intakeCollect extends SequentialCommandGroup {
 
     private boolean isValid() {
         IntakeSubsystem.COLOR c = Robot.sys.intake.colorDetected;
-        // yeah this can be simplified but readability!
-        return Robot.sys.intake.mode == IntakeSubsystem.PICKUP_MODE.transfer
-            ? (c == IntakeSubsystem.COLOR.yellow || c == Robot.sys.intake.teamColor)
-            : c == Robot.sys.intake.teamColor;
+
+        // if auto or transfer, match anything but enemy
+        if ((Robot.sys.intake.mode == IntakeSubsystem.PICKUP_MODE.auto
+            || Robot.sys.intake.mode == IntakeSubsystem.PICKUP_MODE.transfer)
+            && c != Robot.sys.intake.enemyColor && c != IntakeSubsystem.COLOR.blank) return true;
+
+        // if specimen, match only team
+        return c == Robot.sys.intake.teamColor;
     }
 }

@@ -4,10 +4,7 @@ import android.graphics.Color;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 
-import org.firstinspires.ftc.teamcode.PID.PID;
 import org.firstinspires.ftc.teamcode.PID.PIDWrapper;
 
 @Config
@@ -17,7 +14,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public float[] colorHSV = {0f, 0f, 0f};
     public COLOR teamColor;
     public COLOR enemyColor;
-    public PICKUP_MODE mode = PICKUP_MODE.transfer;
+    public PICKUP_MODE mode = PICKUP_MODE.auto;
 
     @Config
     public static class constants {
@@ -97,8 +94,10 @@ public class IntakeSubsystem extends SubsystemBase {
         Robot.intake.setPower(power);
     }
 
-    public void toggleMode() {
-        mode = mode == PICKUP_MODE.transfer ? PICKUP_MODE.specimen : PICKUP_MODE.transfer;
+    public void cycleMode() {
+        if (mode == PICKUP_MODE.transfer) mode = PICKUP_MODE.specimen;
+        else if (mode == PICKUP_MODE.specimen) mode = PICKUP_MODE.auto;
+        else mode = PICKUP_MODE.transfer;
     }
 
     public void setWristPos(WRIST pos) {
@@ -124,6 +123,6 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public enum PICKUP_MODE {
-        transfer, specimen
+        transfer, specimen, auto
     }
 }
