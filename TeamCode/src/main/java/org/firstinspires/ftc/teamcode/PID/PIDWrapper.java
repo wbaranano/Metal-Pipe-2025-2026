@@ -13,6 +13,8 @@ public class PIDWrapper {
     private final int offset;
 
     private double target, power;
+    private int timeoutThres = 1000, lastTick;
+    private long lastTime, timeout;
 
     public PIDWrapper(double p, double i, double d, double max, double tolerance, PIDRead read, PIDWrite write, boolean negative) {
         this.max = max;
@@ -30,16 +32,29 @@ public class PIDWrapper {
     }
 
     public void setTarget(double target) {
-        // TODO: can replace with just pid.setSetPoint?
         pid.reset();
+        this.timeout = 0;
         this.target = target;
     }
 
     public void update() {
-        power = pid.calculate(target, offset * read.read());
+        double tick = offset * read.read();
+        power = pid.calculate(target, tick);
         power = Math.signum(power) * Math.min(Math.abs(power), max);
 
         write.write(Range.clip(power, -1, 1));
+
+        // sometimes we cant get to a position, in that case give up after enough time has elapsed
+        if (!pid.atSetPoint() && timeoutThres != -1) {
+            long t = System.currentTimeMillis();
+            if (Math.floor(tick) == lastTick) {
+                timeout += t - lastTime;
+                if (timeout > timeoutThres) setTarget(tick);
+            } else timeout = 0;
+        }
+
+        lastTick = (int) tick;
+        lastTime = System.currentTimeMillis();
     }
 
     public void increment(int amt) {
@@ -52,7 +67,12 @@ public class PIDWrapper {
         Robot.telemetry.addData(name + " target", target);
         Robot.telemetry.addData(name + " power", power);
         Robot.telemetry.addData(name + " is done", done());
+        Robot.telemetry.addData(name + " timeout", timeout);
         Robot.telemetry.addLine();
+    }
+
+    public void setTimeoutThres(int t)  {
+        timeoutThres = t;
     }
 
     public boolean done() {

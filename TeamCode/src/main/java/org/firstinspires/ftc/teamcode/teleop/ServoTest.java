@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Util;
+import org.firstinspires.ftc.teamcode.commands.Drive;
 import org.firstinspires.ftc.teamcode.commands.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -43,6 +44,8 @@ public class ServoTest extends CommandOpMode {
             new IntakeSubsystem(IntakeSubsystem.COLOR.red),
             new DriveSubsystem(gamepad1)
         ));
+
+        Drive.disable = true;
 
         addServo("claw", Robot.claw);
         addServo("claw pitch", Robot.clawPitch);

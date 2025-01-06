@@ -43,10 +43,6 @@ public class Robot {
     public static Servo armPivotFront, armPivotBack;
     public static Servo clawPitch, clawRoll, claw;
 
-    // ==============================================================
-    // +                           STATE                            +
-    // ==============================================================
-
 
     public static void robotInit(HardwareMap hardwareMap, Telemetry tel) {
         Robot.hardwareMap = hardwareMap;

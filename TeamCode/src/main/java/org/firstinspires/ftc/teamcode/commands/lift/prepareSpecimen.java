@@ -12,7 +12,7 @@ public class prepareSpecimen extends SequentialCommandGroup {
         LiftSubsystem lift = Robot.sys.lift;
 
         addCommands(
-            new liftTo(LiftSubsystem.constants.specimenDeposit),
+            new liftTo(LiftSubsystem.constants.tick.specimenDeposit),
             new InstantCommand(() -> {
                 LiftSubsystem.liftPreset p = LiftSubsystem.constants.specimenDepositPrepPreset;
                 lift.setPivot(p.pivot);

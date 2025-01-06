@@ -16,10 +16,10 @@ public class exitBucketForSpecimen extends SequentialCommandGroup {
         LiftSubsystem lift = Robot.sys.lift;
 
         addCommands(
-            new liftTo(LiftSubsystem.constants.aboveBucket),
+            new liftTo(LiftSubsystem.constants.tick.aboveBucket),
             new InstantCommand(() -> lift.apply(LiftSubsystem.constants.specimenCollectionPreset)),
             new WaitCommand(1000),
-            new liftTo(LiftSubsystem.constants.specimenCollection)
+            new liftTo(LiftSubsystem.constants.tick.specimenCollection)
         );
     }
 }

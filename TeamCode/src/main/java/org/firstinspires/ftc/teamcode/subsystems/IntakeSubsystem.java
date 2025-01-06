@@ -17,14 +17,15 @@ public class IntakeSubsystem extends SubsystemBase {
     public float[] colorHSV = {0f, 0f, 0f};
     public COLOR teamColor;
     public COLOR enemyColor;
-
-    public static double wristDown=0.18;
-    public static double wristUp=0.0;
+    public PICKUP_MODE mode = PICKUP_MODE.transfer;
 
     @Config
     public static class constants {
         public static int fullIntakeOutTick = 600;
-        public static int intakeInTick = -20;
+        public static int intakeInTick = -15;
+        public static int intakeTransferTick = 0;
+        public static double wristDown = 0.18;
+        public static double wristUp = 0.0;
     }
 
     public static double p = 0.06, i = 0, d = 1;
@@ -91,12 +92,22 @@ public class IntakeSubsystem extends SubsystemBase {
     public void setRollerSpeed(double power){
         Robot.flipper.setPower(power);
     }
+
     public void setIntakeSpeed(double power){
         Robot.intake.setPower(power);
     }
-    public void setWristPos(WRIST pos){
+
+    public void toggleMode() {
+        mode = mode == PICKUP_MODE.transfer ? PICKUP_MODE.specimen : PICKUP_MODE.transfer;
+    }
+
+    public void setWristPos(WRIST pos) {
         wristPos = pos;
-        setWrist(pos == WRIST.intake ? wristDown : wristUp);
+        setWrist(pos == WRIST.intake ? constants.wristDown : constants.wristUp);
+    }
+
+    public void toggleWristPos() {
+        setWristPos(wristPos == WRIST.intake ? WRIST.transfer : WRIST.intake);
     }
 
     public void setWrist(double pos){
@@ -110,5 +121,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public enum COLOR {
         red, blue, yellow, blank
+    }
+
+    public enum PICKUP_MODE {
+        transfer, specimen
     }
 }

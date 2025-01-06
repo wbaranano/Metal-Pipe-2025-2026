@@ -14,10 +14,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
  * Collect until a valid specimen is found
  */
 public class intakeCollect extends SequentialCommandGroup {
-    private final boolean isForTransfer;
-    public intakeCollect(boolean isForTransfer) {
+    public intakeCollect() {
         IntakeSubsystem in = Robot.sys.intake;
-        this.isForTransfer = isForTransfer;
 
         addCommands(
             new PerpetualCommand(
@@ -37,7 +35,7 @@ public class intakeCollect extends SequentialCommandGroup {
     private boolean isValid() {
         IntakeSubsystem.COLOR c = Robot.sys.intake.colorDetected;
         // yeah this can be simplified but readability!
-        return isForTransfer
+        return Robot.sys.intake.mode == IntakeSubsystem.PICKUP_MODE.transfer
             ? (c == IntakeSubsystem.COLOR.yellow || c == Robot.sys.intake.teamColor)
             : c == Robot.sys.intake.teamColor;
     }

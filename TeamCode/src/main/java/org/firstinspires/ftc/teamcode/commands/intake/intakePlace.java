@@ -13,12 +13,20 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
  * Given an already collected pixel, extend intake and eject it then retract intake
  */
 public class intakePlace extends SequentialCommandGroup {
+    public intakePlace(int dist) {
+        cmd(dist);
+    }
+
     public intakePlace() {
+        cmd(IntakeSubsystem.constants.fullIntakeOutTick);
+    }
+
+    private void cmd(int tick) {
         IntakeSubsystem in = Robot.sys.intake;
 
         addCommands(
             new InstantCommand(() -> in.setWristPos(IntakeSubsystem.WRIST.transfer)),
-            new intakeTo(IntakeSubsystem.constants.fullIntakeOutTick),
+            new intakeTo(tick),
             new InstantCommand(() -> {
                 in.setIntakeSpeed(-1);
                 in.setRollerSpeed(-1);
