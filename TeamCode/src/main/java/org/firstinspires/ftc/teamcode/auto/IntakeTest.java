@@ -18,6 +18,7 @@ public class IntakeTest extends CommandOpMode {
     @Override
     public void initialize() {
         CommandScheduler.getInstance().reset();
+        /*
         intake=new IntakeSubsystem(); register(intake);
 
         //lift=new LiftSubsystem(); register(lift);
@@ -29,6 +30,7 @@ public class IntakeTest extends CommandOpMode {
             new WaitUntilCommand(()->IntakeSubsystem.colorDetected!= IntakeSubsystem.COLOR.blank&&IntakeSubsystem.colorDetected!=Robot.enemyColor),
             new Transfer(intake)
         ));
+         */
     }
     @Override
     public void run(){

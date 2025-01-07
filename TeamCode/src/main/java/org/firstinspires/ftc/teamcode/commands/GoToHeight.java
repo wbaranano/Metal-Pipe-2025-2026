@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LiftSubsystem;
 
 public class GoToHeight extends CommandBase {
+    /*
     IntakeSubsystem intake;
     int[] levels={800,900,1000,1100,1200};//specimen rung1 bucket1 rung2 bucket2
     int bucket1=300;
@@ -37,5 +38,5 @@ public class GoToHeight extends CommandBase {
             }
         }
     }
-
+     */
 }

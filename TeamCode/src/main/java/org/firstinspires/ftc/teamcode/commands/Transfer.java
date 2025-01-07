@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 public class Transfer extends SequentialCommandGroup {
     public Transfer(IntakeSubsystem intake){
+        /*
         addCommands(
 
             new InstantCommand(()->intake.setWrist(-.1)),
@@ -25,7 +26,7 @@ public class Transfer extends SequentialCommandGroup {
             new WaitCommand(500),
             new InstantCommand(()->intake.setRollerSpeed(0.0)),
             new InstantCommand(()->intake.setIntakeSpeed(0))
-
             );
+         */
     }
 }

@@ -1,95 +1,128 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.controller.PIDController;
 
-import org.firstinspires.ftc.teamcode.PID.PID;
+import org.firstinspires.ftc.teamcode.PID.PIDWrapper;
 
 @Config
 public class IntakeSubsystem extends SubsystemBase {
-    public enum WRIST{
-        transfer,
-        intake
+    public WRIST wristPos;
+    public COLOR colorDetected = COLOR.blank;
+    public float[] colorHSV = {0f, 0f, 0f};
+    public COLOR teamColor;
+    public COLOR enemyColor;
+    public PICKUP_MODE mode = PICKUP_MODE.auto;
+
+    @Config
+    public static class constants {
+        public static int fullIntakeOutTick = 600;
+        public static int intakeInTick = -15;
+        public static int intakeTransferTick = 0;
+        public static double wristDown = 0.18;
+        public static double wristUp = 0.0;
     }
-    public enum COLOR{
-        red,
-        blue,
-        yellow,
-        blank
+
+    public static double p = 0.06, i = 0, d = 1;
+
+    public PIDWrapper pid;
+
+    private COLOR lastColor = COLOR.blank;
+    private int colorBuffer;
+
+    public IntakeSubsystem(COLOR teamColor) {
+        this.pid = new PIDWrapper(
+            p, i, d,
+            0.75, 10,
+            Robot.extendo::getCurrentPosition, Robot.extendo::setPower,
+            true);
+
+        this.teamColor = teamColor;
+        enemyColor = teamColor == COLOR.red ? COLOR.blue : COLOR.red;
     }
-    public static WRIST wristPos;
-    public static COLOR colorDetected;
-    public static double wristDown=0.18;
-    public static double wristUp=0.0;
-    public static double outPosition=0.0;
-    public static double p=0.01;
-    public static double intakethresh=4.0;
-    public static double i=0.0;
-    public static double d=0.0;
-    public static boolean finished=false;
-    //public PID pid=new PID(p,i,d);
-    public double set=0;
-    PIDController pid=new PIDController(p,i,d);
+
     @Override
     public void periodic(){
+        pid.update();
+        COLOR c = getColor();
 
-        setExtendoPower(pid.calculate(getExtendoPosition()));
-        if(Math.abs(getExtendoPosition()-set)<200){
-            finished=true;
+        if (c == lastColor) colorBuffer++;
+        else {
+            colorBuffer = 0;
+            lastColor = c;
         }
-        else{
-            finished=false;
-        }
 
-        colorDetected=getColor();
+        if (colorBuffer >= 3) colorDetected = c;
 
+
+        Robot.telemetry.addData("Intake Color", colorDetected);
+        pid.log("Intake");
+
+        pid.setPID(p, i, d);
     }
+
     private COLOR getColor(){
-        if(Robot.hsvIntake[0]>205&&Robot.hsvIntake[0]<240){
-            return(COLOR.blue);
-        }
-        else if(Robot.hsvIntake[0]>44&&Robot.hsvIntake[0]<80){
-            return(COLOR.yellow);
-        }
-        else if(Robot.hsvIntake[0]>0&&Robot.hsvIntake[0]<30){
-            return (COLOR.red);
-        }
-        else{
-            return (COLOR.blank);
-        }
+        Color.RGBToHSV(
+            Robot.intakeColorSensor.red() * 255,
+            Robot.intakeColorSensor.green() * 255,
+            Robot.intakeColorSensor.blue() * 255,
+            colorHSV);
 
+        double h = colorHSV[0];
+        if (h > 205 && h < 240) return COLOR.blue;
+        else if (h > 44 && h < 80) return COLOR.yellow;
+        else if (h > 0 && h < 30) return COLOR.red;
+
+        return COLOR.blank;
     }
-    public void setIntakeDistance(int ticks){
-        pid.setSetPoint(ticks);
-        set=ticks;
+
+    public void setIntakeDist(int ticks) {
+        pid.setTarget(ticks);
     }
-    public void setExtendoPower(double power){
+
+    public void overrideIntakePower(double power) {
         Robot.extendo.setPower(power);
     }
-    public double getExtendoPosition(){
-        return Robot.extendo.getCurrentPosition();
-    }
+
     public void setRollerSpeed(double power){
         Robot.flipper.setPower(power);
     }
+
     public void setIntakeSpeed(double power){
         Robot.intake.setPower(power);
     }
-    public void setWristPos(WRIST pos){
-        if(pos==WRIST.intake){
-            wristPos=pos;
-            setWrist(wristDown);
 
-        }
-        else{
-            wristPos=pos;
-            setWrist(wristUp);
-        }
+    public void cycleMode() {
+        if (mode == PICKUP_MODE.transfer) mode = PICKUP_MODE.specimen;
+        else if (mode == PICKUP_MODE.specimen) mode = PICKUP_MODE.auto;
+        else mode = PICKUP_MODE.transfer;
     }
+
+    public void setWristPos(WRIST pos) {
+        wristPos = pos;
+        setWrist(pos == WRIST.intake ? constants.wristDown : constants.wristUp);
+    }
+
+    public void toggleWristPos() {
+        setWristPos(wristPos == WRIST.intake ? WRIST.transfer : WRIST.intake);
+    }
+
     public void setWrist(double pos){
-        Robot.intakeWrist2.setPosition(.5+pos);
-        Robot.intakeWrist1.setPosition(.5-pos);
+        Robot.intakeWristLeft.setPosition(0.5 + pos);
+        Robot.intakeWristRight.setPosition(0.5 - pos);
     }
 
+    public enum WRIST {
+        transfer, intake
+    }
+
+    public enum COLOR {
+        red, blue, yellow, blank
+    }
+
+    public enum PICKUP_MODE {
+        transfer, specimen, auto
+    }
 }
