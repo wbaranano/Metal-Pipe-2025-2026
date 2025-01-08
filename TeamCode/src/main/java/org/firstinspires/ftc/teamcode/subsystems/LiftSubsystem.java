@@ -32,7 +32,7 @@ public class LiftSubsystem extends SubsystemBase {
         public static double clawBigOpen = 0.475;
         public static liftPreset specimenCollectionPreset = new liftPreset(0.5172, rollForwards, 0.6594, retractExtension);
         public static liftPreset specimenDepositPrepPreset = new liftPreset(0.445, rollBackwards, 0.6, extendExtension);
-        public static liftPreset transferPickupPreset = new liftPreset(0.485, rollBackwards, 0.516, retractExtension);
+        public static liftPreset transferPickupPreset = new liftPreset(0.48, rollBackwards, 0.516, retractExtension);
         public static liftPreset basketPreset = new liftPreset(0.5483, rollBackwards, 0.6194, retractExtension);
     }
 

@@ -69,10 +69,12 @@ public class liftSetState extends SequentialCommandGroup {
     private SequentialCommandGroup specimenToWall() {
         return new SequentialCommandGroup(
             new InstantCommand(() -> {
-                lift.apply(LiftSubsystem.constants.specimenCollectionPreset);
+                lift.setExtension(LiftSubsystem.constants.specimenCollectionPreset.extension);
                 lift.setClawClosed(false, true); // open claw
             }),
             new liftTo(LiftSubsystem.constants.tick.specimenCollection),
+            new WaitCommand(1000), // TODO: modify this wait as needed to prevent collision
+            new InstantCommand(() -> lift.apply(LiftSubsystem.constants.specimenCollectionPreset)),
             new InstantCommand(() -> lift.state = LiftSubsystem.liftState.wall)
         );
     }
