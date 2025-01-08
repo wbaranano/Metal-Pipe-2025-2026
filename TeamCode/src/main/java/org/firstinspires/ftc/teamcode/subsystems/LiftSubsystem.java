@@ -17,22 +17,23 @@ public class LiftSubsystem extends SubsystemBase {
         public static class tick {
             public static int aboveBucket = 200;
             public static int specimenCollection = 0;
-            public static int specimenDeposit = 1200; // TODO: this was tuned to a pole that was too higher, adjust this yourself
+            public static int specimenDeposit = 800; // TODO: this was tuned to a pole that was too higher, adjust this yourself
+            public static int specimenDepositSlam = 400;
             public static int highBasket = 2350;
-            public static int intermediary = 450;
-            public static int transfer = 0;
+            public static int intermediary = 600;
+            public static int transfer = -10;
         }
-        public static double rollForwards = 0.4956;
-        public static double rollBackwards = 0.378;
-        public static double retractExtension = 0.26;
-        public static double extendExtension = 0.62;
+        public static double rollBackwards = 0.4956;
+        public static double rollForwards = 0.378;
+        public static double retractExtension = 0.42;
+        public static double extendExtension = 0.8;
         public static double clawClose = 0.725;
-        public static double clawOpen = 0.5;
-        public static int specimenDepositLift = 400;
-        public static liftPreset specimenCollectionPreset = new liftPreset(0.52, rollForwards, 0.62, retractExtension);
-        public static liftPreset specimenDepositPrepPreset = new liftPreset(0.5, rollForwards, 0.54, extendExtension);
-        public static liftPreset transferPickupPreset = new liftPreset(0.49, rollBackwards, 0.5, retractExtension);
-        public static liftPreset basketPreset = new liftPreset(0.50, rollBackwards, 0.56, extendExtension);
+        public static double clawOpen = 0.525;
+        public static double clawBigOpen = 0.475;
+        public static liftPreset specimenCollectionPreset = new liftPreset(0.5172, rollForwards, 0.6594, retractExtension);
+        public static liftPreset specimenDepositPrepPreset = new liftPreset(0.445, rollBackwards, 0.6, extendExtension);
+        public static liftPreset transferPickupPreset = new liftPreset(0.485, rollBackwards, 0.516, retractExtension);
+        public static liftPreset basketPreset = new liftPreset(0.5483, rollBackwards, 0.6194, retractExtension);
     }
 
     private boolean clawIsClosed = false;
@@ -58,7 +59,7 @@ public class LiftSubsystem extends SubsystemBase {
 
     public void setPower(double power){
         // positive power means we are going downwards
-        if (dampenRetraction && power > 0) power /= 4.0;
+        if (dampenRetraction && power > 0) power /= 2.0;
 
         Robot.liftFront.setPower(power);
         Robot.liftBack.setPower(-power);
@@ -85,6 +86,12 @@ public class LiftSubsystem extends SubsystemBase {
     public void setClawClosed(boolean closed) {
         clawIsClosed = closed;
         Robot.claw.setPosition(closed ? constants.clawClose : constants.clawOpen);
+    }
+
+    public void setClawClosed(boolean closed, boolean isBig) {
+        clawIsClosed = closed;
+        if (isBig) Robot.claw.setPosition(closed ? constants.clawClose : constants.clawBigOpen);
+        else setClawClosed(closed);
     }
 
     public void toggleClaw() {

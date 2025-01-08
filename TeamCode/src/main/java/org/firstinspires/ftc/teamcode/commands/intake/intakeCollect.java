@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
  * Collect until a valid specimen is found
  */
 public class intakeCollect extends SequentialCommandGroup {
+    public static boolean overrideCancel = false;
+
     public intakeCollect() {
         IntakeSubsystem in = Robot.sys.intake;
 
@@ -28,7 +30,8 @@ public class intakeCollect extends SequentialCommandGroup {
                     ),
                     () -> this.isValid() || in.colorDetected == IntakeSubsystem.COLOR.blank
                 )
-            ).interruptOn(this::isValid)
+            ).interruptOn(() -> isValid() || overrideCancel),
+            new InstantCommand(() -> overrideCancel = false)
         );
     }
 

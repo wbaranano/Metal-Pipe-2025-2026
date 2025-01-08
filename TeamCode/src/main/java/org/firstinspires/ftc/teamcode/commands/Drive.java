@@ -24,10 +24,10 @@ public class Drive extends CommandBase {
         if (disable) return;
 
         double offsetX = 0, offsetY = 0, offsetHeading = 0;
-        if (drive.pad.dpad_up) offsetY -= 0.25;
-        if (drive.pad.dpad_down) offsetY += 0.25;
-        if (drive.pad.dpad_right) offsetX += 0.25;
-        if (drive.pad.dpad_left) offsetX -= 0.25;
+        // if (drive.pad.dpad_up) offsetY -= 0.35;
+        // if (drive.pad.dpad_down) offsetY += 0.35;
+        // if (drive.pad.dpad_right) offsetX += 0.35;
+        // if (drive.pad.dpad_left) offsetX -= 0.35;
 
         offsetHeading += drive.pad.right_trigger / 3.0;
         offsetHeading -= drive.pad.left_trigger / 3.0;

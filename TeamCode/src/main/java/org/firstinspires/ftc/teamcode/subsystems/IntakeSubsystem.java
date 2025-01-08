@@ -18,7 +18,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Config
     public static class constants {
-        public static int fullIntakeOutTick = 600;
+        public static int fullIntakeOutTick = 450;
         public static int intakeInTick = -15;
         public static int intakeTransferTick = 0;
         public static double wristDown = 0.18;
@@ -109,7 +109,7 @@ public class IntakeSubsystem extends SubsystemBase {
         setWristPos(wristPos == WRIST.intake ? WRIST.transfer : WRIST.intake);
     }
 
-    public void setWrist(double pos){
+    public void setWrist(double pos) {
         Robot.intakeWristLeft.setPosition(0.5 + pos);
         Robot.intakeWristRight.setPosition(0.5 - pos);
     }

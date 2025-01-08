@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
  * Extend intake and pickup pixel then retract. Transfers specimen depending on isForTransfer
  */
 public class intakeRun extends SequentialCommandGroup {
+    public static boolean isRunning = false;
     private Gamepad pad = null;
 
     public intakeRun(Gamepad pad) {
@@ -30,6 +31,7 @@ public class intakeRun extends SequentialCommandGroup {
 
     private void init() {
         IntakeSubsystem in = Robot.sys.intake;
+        isRunning = true;
 
         addCommands(
             // extend intake
@@ -86,8 +88,18 @@ public class intakeRun extends SequentialCommandGroup {
         );
     }
 
+    @Override
+    public void end(boolean interrupted) {
+        super.end(interrupted);
+
+        intakeRun.isRunning = false;
+    }
+
     private boolean shouldTransfer() {
         IntakeSubsystem in = Robot.sys.intake;
+        // color is blank if we cancel this command early
+        if (in.colorDetected == IntakeSubsystem.COLOR.blank) return false;
+
         if (in.mode == IntakeSubsystem.PICKUP_MODE.transfer) return true;
         else if (in.mode == IntakeSubsystem.PICKUP_MODE.specimen) return false;
 

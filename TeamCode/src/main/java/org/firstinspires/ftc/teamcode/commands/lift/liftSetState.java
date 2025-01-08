@@ -60,7 +60,7 @@ public class liftSetState extends SequentialCommandGroup {
                 lift.setExtension(p.extension);
             }),
             // delay roll so specimen doesnt clip lift bars
-            new WaitCommand(300),
+            new WaitCommand(1000),
             new InstantCommand(() -> lift.apply(LiftSubsystem.constants.specimenDepositPrepPreset)),
             new InstantCommand(() -> lift.state = LiftSubsystem.liftState.specimen)
         );
@@ -70,7 +70,7 @@ public class liftSetState extends SequentialCommandGroup {
         return new SequentialCommandGroup(
             new InstantCommand(() -> {
                 lift.apply(LiftSubsystem.constants.specimenCollectionPreset);
-                lift.setClawClosed(false); // open claw
+                lift.setClawClosed(false, true); // open claw
             }),
             new liftTo(LiftSubsystem.constants.tick.specimenCollection),
             new InstantCommand(() -> lift.state = LiftSubsystem.liftState.wall)
@@ -125,6 +125,7 @@ public class liftSetState extends SequentialCommandGroup {
         return new SequentialCommandGroup(
             new InstantCommand(() -> lift.apply(LiftSubsystem.constants.transferPickupPreset)),
             new liftTo(LiftSubsystem.constants.tick.intermediary),
+            new WaitCommand(1500),
             new InstantCommand(() -> lift.state = LiftSubsystem.liftState.intermediary)
         );
     }
@@ -160,10 +161,19 @@ public class liftSetState extends SequentialCommandGroup {
 
     private SequentialCommandGroup intermediaryToWall() {
         return new SequentialCommandGroup(
-            new InstantCommand(() -> lift.apply(LiftSubsystem.constants.specimenCollectionPreset)),
+            new InstantCommand(() -> {
+                LiftSubsystem.liftPreset p = LiftSubsystem.constants.specimenCollectionPreset;
+                lift.setPivot(p.pivot);
+                lift.setPitch(p.pitch);
+                lift.setExtension(p.extension);
+                lift.setClawClosed(false, true);
+            }),
             new WaitCommand(1000),
             new liftTo(LiftSubsystem.constants.tick.specimenCollection),
-            new InstantCommand(() -> lift.state = LiftSubsystem.liftState.wall)
+            new InstantCommand(() -> {
+                lift.apply(LiftSubsystem.constants.specimenCollectionPreset);
+                lift.state = LiftSubsystem.liftState.wall;
+            })
         );
     }
 

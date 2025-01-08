@@ -8,8 +8,11 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.commands.intake.intakeCollect;
 import org.firstinspires.ftc.teamcode.commands.intake.intakePlace;
 import org.firstinspires.ftc.teamcode.commands.intake.intakeRun;
+import org.firstinspires.ftc.teamcode.commands.intake.intakeTo;
+import org.firstinspires.ftc.teamcode.commands.lift.depositSpecimen;
 import org.firstinspires.ftc.teamcode.commands.lift.liftSetState;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -19,6 +22,8 @@ import org.firstinspires.ftc.teamcode.subsystems.SubsystemHandler;
 
 @TeleOp
 public class TeleopMain extends CommandOpMode {
+    private intakeRun intakeRunCmd = null;
+
     @Override
     public void initialize() {
         CommandScheduler.getInstance().reset();
@@ -44,6 +49,7 @@ public class TeleopMain extends CommandOpMode {
             new InstantCommand(() -> {
               Robot.sys.lift.setClawClosed(false);
               Robot.sys.intake.setWristPos(IntakeSubsystem.WRIST.transfer);
+              Robot.sys.lift.apply(LiftSubsystem.constants.transferPickupPreset);
             })
         ));
     }
@@ -51,8 +57,22 @@ public class TeleopMain extends CommandOpMode {
     private void initGamepadOne() {
         GamepadEx pad = new GamepadEx(gamepad1);
 
-        pad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new intakeRun(gamepad1));
+        pad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new InstantCommand(() -> {
+            if (intakeRun.isRunning) intakeCollect.overrideCancel = true;
+            else new intakeRun(gamepad1).schedule();
+        }));
         pad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new intakePlace());
+
+        pad.getGamepadButton(GamepadKeys.Button.DPAD_UP).whileHeld(() -> Robot.sys.intake.pid.increment(15));
+        pad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whileHeld(() -> Robot.sys.intake.pid.increment(-15));
+
+        pad.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> {
+            Robot.sys.intake.setIntakeSpeed(1);
+            Robot.sys.intake.setRollerSpeed(0.25);
+        }).whenReleased(() -> {
+            Robot.sys.intake.setIntakeSpeed(0);
+            Robot.sys.intake.setRollerSpeed(0);
+        });
 
         pad.getGamepadButton(GamepadKeys.Button.B).whenPressed(Robot.sys.intake::cycleMode);
         pad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new intakePlace(150));
@@ -62,10 +82,11 @@ public class TeleopMain extends CommandOpMode {
     private void initGamepadTwo() {
         GamepadEx pad2 = new GamepadEx(gamepad2);
 
-        pad2.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenHeld(new InstantCommand(() -> Robot.sys.lift.pid.increment(5)));
-        pad2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenHeld(new InstantCommand(() -> Robot.sys.lift.pid.increment(-5)));
+        pad2.getGamepadButton(GamepadKeys.Button.DPAD_UP).whileHeld(new InstantCommand(() -> Robot.sys.lift.pid.increment(15)));
+        pad2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whileHeld(new InstantCommand(() -> Robot.sys.lift.pid.increment(-15)));
 
         pad2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(Robot.sys.lift::toggleClaw);
+        pad2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new depositSpecimen());
 
         pad2.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new liftSetState(LiftSubsystem.liftState.basket));
         pad2.getGamepadButton(GamepadKeys.Button.A).whenPressed(new liftSetState(LiftSubsystem.liftState.transfer));
