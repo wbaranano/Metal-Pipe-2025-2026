@@ -1,0 +1,51 @@
+import java.util.Scanner;
+
+public class Outtake {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Read ball colors
+        String ballColorInput = readString(scanner, "Enter color of ball");
+        String[] ballColorList = ballColorInput.trim().split("\\s+");
+
+        // Read AprilTag
+        String aprilTag = readString(scanner, "Enter April Tag representation");
+
+        String[] aprilTagList = null;
+
+        switch (aprilTag) {
+            case "21" -> aprilTagList = new String[]{"Green", "Green", "Purple"};
+            case "22" -> aprilTagList = new String[]{"Green", "Purple", "Green"};
+            case "23" -> aprilTagList = new String[]{"Purple", "Purple", "Green"};
+            default -> {
+                System.out.println("Unknown AprilTag");
+                return;
+            }
+        }
+
+        boolean allMatch = true;
+        int maxLength = Math.max(ballColorList.length, aprilTagList.length);
+
+        for (int i = 0; i < maxLength; i++) {
+            String ballColor = i < ballColorList.length ? ballColorList[i] : "(missing)";
+            String tagColor = i < aprilTagList.length ? aprilTagList[i] : "(missing)";
+
+            if (!ballColor.equalsIgnoreCase(tagColor)) {
+                System.out.println("Slot " + (i + 1) + " is false: Ball=" + ballColor + " Tag=" + tagColor);
+                allMatch = false;
+            }
+        }
+
+        if (allMatch) {
+            System.out.println("All slots match. You don't need to do anything.");
+        } else {
+            System.out.println("Some slots don't match. Outtake the ball.");
+        }
+    }
+
+    private static String readString(Scanner scanner, String message) {
+        System.out.println(message);
+        return scanner.nextLine();
+    }
+}
