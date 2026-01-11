@@ -1,0 +1,74 @@
+import java.util.Scanner;
+
+public class ProjectileSolver {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+      
+        double x = readInput(scanner, "x coordinate (m)? ");
+        double y = readInput(scanner, "y coordinate (m)? ");
+
+       
+        double dx = Math.sqrt(Math.pow(3657.6 - y, 2) + Math.pow(x, 2)) * 1000.0;
+        System.out.println("The distance is " + dx + " mm");
+
+        double v = readInput(scanner, "Enter launch velocity v (mm/s): ") * 1000.0; 
+        double dy = 430 * 1000.0; 
+        double g = 9800.0;       
+
+     
+        double D = v*v*v*v - g * (g*dx*dx + 2*dy*v*v);
+        if (D < 0) {
+            System.out.println("No physical solution: the target is unreachable with this velocity.");
+            return;
+        }
+
+        double tol = 1e-6;
+        int maxIter = 1000;
+
+        double low = 0.01;
+        double high = Math.PI / 2 - 0.01;
+        double theta = 0.0;
+
+        for (int i = 0; i < maxIter; i++) {
+            theta = (low + high) / 2.0;
+
+            double f = 2 * v * v * dy * Math.pow(Math.cos(theta), 2)
+                     - v * v * dx * Math.tan(theta)
+                     - g * dx * dx;
+
+            if (Math.abs(f) < tol) {
+                break;
+            }
+
+            double fLow = 2 * v * v * dy * Math.pow(Math.cos(low), 2)
+                        - v * v * dx * Math.tan(low)
+                        - g * dx * dx;
+
+            if (fLow * f < 0) {
+                high = theta;
+            } else {
+                low = theta;
+            }
+        }
+
+        double thetaDegrees = Math.toDegrees(theta);
+        System.out.printf("Solution: theta = %.6f radians (%.6f degrees)%n",
+                          theta, thetaDegrees);
+
+        scanner.close();
+    }
+
+    private static double readInput(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                return Double.parseDouble(input.trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input, please enter a number.");
+            }
+        }
+    }
+}
