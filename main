@@ -1,0 +1,231 @@
+package org.firstinspires.ftc.teamcode.tele_op;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
+@TeleOp(name = "TheMain", group = "TeleOp")
+public class LiftWithAButton extends OpMode {
+
+
+    DcMotor FLeft, FRight, BLeft, BRight;
+    GoBildaPinpointDriver odo; //declare odometry
+
+    DcMotor launch;
+    DcMotor intake;
+
+
+    DcMotor lift1, lift2;
+
+
+    Servo turretspinner;
+    Servo gate1, gate2, kicker;
+    Servo angle;
+
+
+    ServoImplEx spindexer;
+
+
+    NormalizedColorSensor colorSensor;
+
+
+    double turretStop = 0.5;
+    double turretLeft = 0.35;
+    double turretRight = 0.65;
+
+    double gate1Open = 0.83, gate1Closed = 0.3;
+    double gate2Open = 0.41, gate2Closed = 0.94;
+
+
+    double kickerRest = 0.5, kickerUp = 1;
+    boolean lastDpadUp = false;
+
+
+    double[] slotAngles = {0.0, 1, 0, 1.0, 0, 1};// 0°, ~100°, ~200°, ~300°
+    int currentSlot = 0;
+    boolean lastLeft = false;
+    boolean lastRight = false;
+
+    final double ANGLE_STEP = 0.01;
+    final double ANGLE_MIN = 0.25;
+    final double ANGLE_MAX = 0.75;
+
+    @Override
+    public void init() {
+
+        // ===== DRIVE MOTORS =====
+        FLeft  = hardwareMap.get(DcMotor.class, "FLeft");
+        FRight = hardwareMap.get(DcMotor.class, "FRight");
+        BLeft  = hardwareMap.get(DcMotor.class, "BLeft");
+        BRight = hardwareMap.get(DcMotor.class, "BRight");
+
+        FLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        BRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+
+
+        launch = hardwareMap.get(DcMotor.class, "launch");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+
+        lift1 = hardwareMap.get(DcMotor.class, "lift1");
+        lift2 = hardwareMap.get(DcMotor.class, "lift2");
+
+
+        turretspinner = hardwareMap.get(Servo.class, "turretspinner");
+        gate1 = hardwareMap.get(Servo.class, "gate1");
+        gate2 = hardwareMap.get(Servo.class, "gate2");
+        kicker = hardwareMap.get(Servo.class, "kicker");
+        angle = hardwareMap.get(Servo.class, "angle");
+
+
+        spindexer = hardwareMap.get(ServoImplEx.class, "spindexer");
+        spindexer.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        spindexer.setPosition(slotAngles[currentSlot]);
+
+        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
+//measure the offset bum
+        odo.setOffsets(-84.0,-168.0, DistanceUnit.MM);
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+        //ODO SET UP
+        odo.resetPosAndIMU();
+        //change starting position
+        Pose2D startingpostion = new Pose2D(DistanceUnit.MM, 2410, 0.0, AngleUnit.RADIANS, 0);
+        odo.setPosition(startingpostion);
+
+
+        turretspinner.setPosition(turretStop);
+        gate1.setPosition(gate1Open);
+        gate2.setPosition(gate2Open);
+        kicker.setPosition(kickerRest);
+        angle.setPosition(0.5);
+
+    }
+
+
+    private void moveRobot() {
+        double f = gamepad1.left_stick_y;
+        double s = gamepad1.left_stick_x;
+        double r = gamepad1.right_stick_x;
+        double scale = gamepad1.right_bumper ? 0.5 : 1.0;
+
+        double fl = (f + s + r) * scale;
+        double fr = (f - s - r) * scale;
+        double bl = (f - s + r) * scale;
+        double br = (f + s - r) * scale;
+
+        double max = Math.max(1.0,
+                Math.max(Math.abs(fl),
+                        Math.max(Math.abs(fr),
+                                Math.max(Math.abs(bl), Math.abs(br)))));
+        if (gamepad1.right_bumper)
+
+            FLeft.setPower(fl / max);
+        FRight.setPower(fr / max);
+        BLeft.setPower(bl / max);
+        BRight.setPower(br / max);
+    }
+
+    private void anglelogic(){
+
+    }
+    private void handleSpindexer() {
+        boolean left = gamepad2.dpad_left;
+        boolean right = gamepad2.dpad_right;
+
+        if (left && !lastLeft) {
+            currentSlot = (currentSlot - 1 + slotAngles.length) % slotAngles.length;
+            spindexer.setPosition(slotAngles[currentSlot]);
+        }
+
+        if (right && !lastRight) {
+            currentSlot = (currentSlot + 1) % slotAngles.length;
+            spindexer.setPosition(slotAngles[currentSlot]);
+        }
+
+        lastLeft = left;
+        lastRight = right;
+    }
+
+    private void handleLift() {
+        if (gamepad1.a) {
+            lift1.setPower(0.75);
+            lift2.setPower(-0.75);
+        } else {
+            lift1.setPower(0);
+            lift2.setPower(0);
+        }
+    }
+
+
+    private void handleAngleServo() {
+        double pos = angle.getPosition();
+
+        if (gamepad2.right_trigger > 0.1)
+            pos += ANGLE_STEP * gamepad2.right_trigger;
+
+        if (gamepad2.left_trigger > 0.1)
+            pos -= ANGLE_STEP * gamepad2.left_trigger;
+
+        pos = Math.max(ANGLE_MIN, Math.min(ANGLE_MAX, pos));
+        angle.setPosition(pos);
+    }
+
+    @Override
+    public void loop() {
+
+        moveRobot();
+
+        launch.setPower(gamepad1.b ? .9 : 0.0);
+        intake.setPower(gamepad2.a ? -1.0 : 0.0);
+
+        if (gamepad2.right_bumper) turretspinner.setPosition(turretRight);
+        else if (gamepad2.left_bumper) turretspinner.setPosition(turretLeft);
+        else turretspinner.setPosition(turretStop);
+
+        if (gamepad1.y) {
+            gate1.setPosition(gate1Closed);
+            gate2.setPosition(gate2Closed);
+        } else {
+            gate1.setPosition(gate1Open);
+            gate2.setPosition(gate2Open);
+        }
+
+        boolean up = gamepad1.x;
+        if (up && !lastDpadUp) kicker.setPosition(kickerUp);
+        else if (!up) kicker.setPosition(kickerRest);
+        lastDpadUp = up;
+
+        handleSpindexer();
+        handleLift();
+        handleAngleServo();
+
+        Pose2D pos = odo.getPosition();
+
+        telemetry.addData("Robot x", odo.getPosX(DistanceUnit.MM));
+        telemetry.addData("Robot Y", odo.getPosY(DistanceUnit.MM));
+        telemetry.addData("Robot X", pos.getHeading(AngleUnit.DEGREES));
+
+        odo.update();
+        telemetry.addData("Spindexer Slot", currentSlot);
+        telemetry.addData("Spindexer Pos", spindexer.getPosition());
+        telemetry.addData("Angle Servo", angle.getPosition());
+        telemetry.update();
+    }
+}
+
+
+
