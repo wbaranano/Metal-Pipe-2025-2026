@@ -1,12 +1,37 @@
 import java.util.Scanner;
 
+public class DistanceToGoal {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        double x = readInput(scanner, "x coordinate? ");
+        double y = readInput(scanner, "y coordinate? ");
+
+        double z = Math.sqrt(Math.pow(3657.6 - y, 2) + Math.pow(x, 2));
+        System.out.println("The distance is " + z);
+
+        scanner.close();
+    }
+
+    private static double readInput(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                return Double.parseDouble(input.trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input, please enter a number.");
+            }
+        }
+    }
+}
 public class ProjectileSolver {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         double v = readInput(scanner, "Enter launch velocity v (m/s): ");
-        double dx = readInput(scanner, "Enter horizontal distance Δx to the goal (m): ");
+        double dx = z;
         double dy = 430;
         double g = 9.8; // gravity (m/s²)
 
