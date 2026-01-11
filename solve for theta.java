@@ -21,8 +21,9 @@ public class ProjectileSolver {
             theta = (low + high) / 2.0;
 
             double f = 2 * v * v * dy * Math.pow(Math.cos(theta), 2)
-                     - v * v * dx * Math.tan(theta)
-                     - g * dx * dx;
+         - v * v * dx * Math.tan(theta)
+         - g * dx * dx;
+
 
             if (Math.abs(f) < tol) {
                 break;
