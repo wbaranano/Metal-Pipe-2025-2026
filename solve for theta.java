@@ -7,7 +7,7 @@ public class ProjectileSolver {
 
         double v = readInput(scanner, "Enter launch velocity v (m/s): ");
         double dx = readInput(scanner, "Enter horizontal distance Δx to the goal (m): ");
-        double dy = readInput(scanner, "Enter vertical displacement Δy (m): ");
+        double dy = 430;
         double g = 9.8; // gravity (m/s²)
 
         double tol = 1e-6;
