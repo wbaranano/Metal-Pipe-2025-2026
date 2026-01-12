@@ -224,8 +224,83 @@ public class LiftWithAButton extends OpMode {
         telemetry.addData("Spindexer Pos", spindexer.getPosition());
         telemetry.addData("Angle Servo", angle.getPosition());
         telemetry.update();
+   
+
+import java.util.Scanner;
+
+public class WhatDerVelo {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+      
+        
+        double inputX = Robot x;
+        
+        double inputY = Robot Y;
+
+        double quadrant = 0;
+        double v = 0;
+
+   
+        if (inputX < 1828.8 && inputY < 1828.8) {
+            quadrant = 3;
+            v = 10; 
+        } else if (inputX >= 1828.8 && inputX < 3657.6 && inputY >= 1828.8 && inputY < 3657.6) {
+            quadrant = 1;
+            v = 5.5;
+        } else if (inputX < 1828.8 && inputY >= 1828.8 && inputY < 3657.6) {
+            quadrant = 2;
+            v = 5;
+        } else if (inputX >= 1828.8 && inputX < 3657.6 && inputY < 1828.8) {
+            quadrant = 4;
+            v = 10.5;
+        } else {
+            System.out.println("Coordinates out of bounds.");
+            return;
+        }
+
+        System.out.println("Quadrant: " + quadrant);
+        System.out.println("Base Velocity: " + v + " m/s");
+
+        
+        double dx = Math.sqrt(Math.pow(3657.6 - inputY, 2) + Math.pow(inputX, 2));
+        System.out.println("The distance (dx) is " + dx + " mm");
+
+        
+        double v_mm = v * 1000.0; 
+        double dy = 430.0;     
+        double g = 9806.65;     
+
+
+        double D = Math.pow(v_mm, 4) - g * (g * dx * dx + 2 * dy * v_mm * v_mm);
+        if (D < 0) {
+            System.out.println("No physical solution: target is unreachable.");
+            return;
+        }
+
+       
+        double low = 0.01;
+        double high = Math.PI / 2 - 0.01;
+        double theta = 0.0;
+
+        for (int i = 0; i < 1000; i++) {
+            theta = (low + high) / 2.0;
+            
+        
+            double f = dx * Math.tan(theta) - (g * dx * dx) / (2 * v_mm * v_mm * Math.pow(Math.cos(theta), 2)) - dy;
+
+            if (f < 0) {
+                low = theta;
+            } else {
+                high = theta;
+            }
+        }
+
+        double thetaDegrees = Math.toDegrees(theta);
+        System.out.printf("Solution: theta = %.6f degrees%n", thetaDegrees);
+
+        scanner.close();
     }
 }
-
 
 
